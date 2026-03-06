@@ -3,456 +3,724 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>bKash Payment Success</title>
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>bKash Payment</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --pink: #e2136e;
-      --pink-light: #f5d0e3;
       --green: #1aa637;
-      --text-dark: #1a1a2e;
-      --text-mid: #444;
+      --text-dark: #222;
       --text-muted: #888;
-      --bg: #f7f7f7;
+      --bg: #efefef;
       --white: #ffffff;
-      --border: #e8e8e8;
+      --border: #e0e0e0;
       --orange: #f4a245;
+      --tan: #c8b89a;
     }
 
     body {
-      font-family: 'Hind Siliguri', sans-serif;
+      font-family: Arial, sans-serif;
       background: var(--bg);
       display: flex;
       justify-content: center;
-      align-items: flex-start;
       min-height: 100vh;
-      padding: 24px 12px;
+      padding: 20px 10px 40px;
     }
 
-    .card {
+    .screen { display: none; width: 100%; max-width: 420px; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    /* ════════════════════════════
+       FORM SCREEN
+    ════════════════════════════ */
+    .form-card {
       background: var(--white);
-      border-radius: 18px;
-      width: 100%;
-      max-width: 390px;
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 8px 40px rgba(226,19,110,0.10), 0 2px 8px rgba(0,0,0,0.06);
-      animation: slideUp 0.5s cubic-bezier(.22,1,.36,1) both;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+      animation: slideUp 0.4s cubic-bezier(.22,1,.36,1) both;
     }
 
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity:0; transform:translateY(24px); }
+      to   { opacity:1; transform:translateY(0); }
     }
 
-    /* ── Header ── */
-    .header {
-      padding: 28px 24px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .form-header {
+      background: var(--pink);
+      padding: 26px 22px 22px;
+      display: flex; align-items: center; gap: 14px;
     }
 
-    .header-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--pink);
+    .form-logo {
+      width: 44px; height: 44px; background: white;
+      border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink:0;
+    }
+    .form-logo svg { width: 26px; height: 26px; fill: var(--pink); }
+
+    .form-header-text h2 { font-size: 18px; font-weight: 700; color: white; }
+    .form-header-text p  { font-size: 13px; color: rgba(255,255,255,0.85); margin-top: 2px; }
+
+    /* Toggle */
+    .toggle-wrap { padding: 18px 22px 4px; }
+    .toggle-bar {
+      display: flex; background: #f0f0f0;
+      border-radius: 10px; padding: 4px; gap: 4px;
+    }
+    .toggle-btn {
+      flex: 1; padding: 11px 6px; border: none; border-radius: 7px;
+      font-size: 14px; font-weight: 700; font-family: Arial, sans-serif;
+      cursor: pointer; transition: all 0.2s; color: var(--text-muted);
+      background: transparent;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+    }
+    .toggle-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .toggle-btn.active { background: var(--pink); color: white; box-shadow: 0 2px 8px rgba(226,19,110,0.28); }
+
+    .form-body { padding: 18px 22px 6px; }
+
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block; font-size: 11px; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 7px;
+    }
+    .input-wrap { position: relative; display: flex; align-items: center; }
+
+    .input-prefix {
+      position: absolute; left: 13px;
+      font-size: 16px; font-weight: 700;
+      color: var(--pink); pointer-events: none;
+    }
+    .phone-prefix {
+      position: absolute; left: 13px;
+      font-size: 14px; font-weight: 700;
+      color: var(--text-muted); pointer-events: none; white-space: nowrap;
     }
 
-    .header-title span {
-      color: var(--green);
+    .field input {
+      width: 100%; padding: 13px 13px 13px 32px;
+      border: 2px solid var(--border); border-radius: 10px;
+      font-size: 15px; font-family: Arial, sans-serif;
+      color: var(--text-dark); outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s; background: #fafafa;
     }
+    .field input.no-prefix { padding-left: 13px; }
+    .field input.phone-input { padding-left: 54px; }
+    .field input:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 3px rgba(226,19,110,0.10);
+      background: white;
+    }
+    .field input::placeholder { color: #bbb; }
+
+    .error-msg { color: #d32f2f; font-size: 12px; margin-top: 5px; display: none; }
+
+    .pay-btn {
+      width: 100%; padding: 15px;
+      background: var(--pink); color: white; border: none; border-radius: 10px;
+      font-size: 16px; font-weight: 700; font-family: Arial, sans-serif;
+      cursor: pointer; margin: 4px 0 22px;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .pay-btn:hover  { background: #c51060; }
+    .pay-btn:active { transform: scale(0.98); }
+    .pay-btn svg { width: 18px; height: 18px; }
+
+    /* ════════════════════════════
+       SUCCESS SCREEN — shared
+    ════════════════════════════ */
+    .success-card {
+      background: var(--white);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+      animation: slideUp 0.4s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    /* Header row */
+    .s-header {
+      padding: 26px 22px 18px;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      background: var(--white);
+    }
+    .s-title { font-size: 19px; font-weight: 700; color: var(--pink); line-height: 1.3; }
+    .s-title span { color: var(--green); }
 
     .check-circle {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
-      border: 2.5px solid var(--green);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: popIn 0.55s 0.25s cubic-bezier(.34,1.56,.64,1) both;
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 2.5px solid var(--green); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      animation: popIn 0.5s 0.1s cubic-bezier(.34,1.56,.64,1) both;
     }
-
     @keyframes popIn {
-      from { opacity: 0; transform: scale(0.4); }
-      to { opacity: 1; transform: scale(1); }
+      from { opacity:0; transform:scale(0.3); }
+      to   { opacity:1; transform:scale(1); }
     }
+    .check-circle svg { stroke: var(--green); width: 21px; height: 21px; }
 
-    .check-circle svg {
-      stroke: var(--green);
-      width: 22px;
-      height: 22px;
+    /* ── PAYMENT merchant row (shopping bag + name) ── */
+    .p-merchant-row {
+      padding: 10px 22px 20px;
+      display: flex; align-items: center; gap: 14px;
     }
-
-    /* ── Merchant ── */
-    .merchant {
-      padding: 14px 24px 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
+    .p-merchant-icon {
+      width: 50px; height: 50px; background: var(--orange); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
+    .p-merchant-icon svg { width: 25px; height: 25px; fill: white; }
+    .p-merchant-name  { font-size: 16px; font-weight: 700; color: var(--text-dark); }
+    .p-merchant-phone { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
-    .merchant-icon {
-      width: 52px;
-      height: 52px;
-      background: var(--orange);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+    /* ── SEND MONEY recipient row (letter avatar + number×2 + call btn) ── */
+    .sm-recipient-row {
+      padding: 10px 22px 20px;
+      display: flex; align-items: center; gap: 14px;
     }
-
-    .merchant-icon svg {
-      width: 26px;
-      height: 26px;
-      fill: white;
+    .sm-avatar {
+      width: 50px; height: 50px; background: var(--tan); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      font-size: 20px; font-weight: 700; color: white;
     }
-
-    .merchant-name {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text-dark);
+    .sm-numbers { flex: 1; }
+    .sm-num1 { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+    .sm-num2 { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .call-btn {
+      border: 2px solid var(--pink); border-radius: 8px; padding: 8px 14px;
+      background: transparent; color: var(--pink); font-size: 13px;
+      font-weight: 700; font-family: Arial, sans-serif; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+      white-space: nowrap;
     }
+    .call-btn:hover { background: var(--pink); color: white; }
+    .call-btn svg { width: 15px; height: 15px; }
 
-    .merchant-phone {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    /* ── Grid ── */
+    /* ── Info grid ── */
     .info-grid {
       border-top: 1px solid var(--border);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: grid; grid-template-columns: 1fr 1fr;
     }
-
     .info-cell {
-      padding: 16px 24px;
+      padding: 15px 22px;
       border-bottom: 1px solid var(--border);
     }
+    .info-cell:nth-child(odd) { border-right: 1px solid var(--border); }
+    .info-cell.full { grid-column: 1 / -1; min-height: 64px; }
 
-    .info-cell:nth-child(odd) {
-      border-right: 1px solid var(--border);
+    .cell-label { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+    .cell-value { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+    .cell-sub   { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+    .txn-row     { display: flex; align-items: center; gap: 7px; }
+    .balance-row { display: flex; align-items: center; gap: 9px; }
+
+    .copy-btn, .eye-btn {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); display: flex; align-items: center; transition: color 0.2s;
     }
-
-    .info-cell.full {
-      grid-column: 1 / -1;
-    }
-
-    .cell-label {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      font-weight: 500;
-    }
-
-    .cell-value {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-dark);
-    }
-
-    .cell-sub {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .txn-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .copy-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 2px;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      transition: color 0.2s;
-    }
-
-    .copy-btn:hover { color: var(--pink); }
+    .copy-btn:hover, .eye-btn:hover { color: var(--pink); }
     .copy-btn svg { width: 16px; height: 16px; }
+    .eye-btn  svg { width: 20px; height: 20px; }
 
-    .balance-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    /* ── Send money amount sub shows fee ── */
+    .fee-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
 
-    .eye-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      transition: color 0.2s;
-    }
-    .eye-btn:hover { color: var(--pink); }
-    .eye-btn svg { width: 20px; height: 20px; }
-
-    /* ── Share button ── */
-    .actions {
-      padding: 20px 24px 4px;
-    }
-
-    .share-btn {
-      width: 100%;
-      padding: 15px;
-      border: 2px solid var(--pink);
-      background: transparent;
-      color: var(--pink);
-      border-radius: 50px;
-      font-size: 16px;
-      font-weight: 700;
-      font-family: 'Hind Siliguri', sans-serif;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+    /* ── Actions ── */
+    /* Payment: single share button */
+    .p-actions { padding: 18px 22px 4px; }
+    .share-btn-full {
+      width: 100%; padding: 14px;
+      border: 2px solid var(--pink); background: transparent; color: var(--pink);
+      border-radius: 50px; font-size: 15px; font-weight: 700;
+      font-family: Arial, sans-serif; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
       transition: background 0.2s, color 0.2s;
     }
+    .share-btn-full:hover { background: var(--pink); color: white; }
+    .share-btn-full svg { width: 17px; height: 17px; }
 
-    .share-btn:hover {
-      background: var(--pink);
-      color: white;
+    /* Send money: two buttons side by side */
+    .sm-actions { padding: 18px 22px 4px; display: flex; gap: 12px; }
+    .autopay-btn {
+      flex: 1; padding: 14px 8px;
+      border: 2px solid var(--pink); background: transparent; color: var(--pink);
+      border-radius: 50px; font-size: 13px; font-weight: 700;
+      font-family: Arial, sans-serif; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: background 0.2s, color 0.2s;
     }
-
-    .share-btn svg { width: 18px; height: 18px; }
+    .autopay-btn:hover { background: var(--pink); color: white; }
+    .autopay-btn svg { width: 16px; height: 16px; }
+    .share-btn-half {
+      flex: 1; padding: 14px 8px;
+      border: 2px solid var(--pink); background: transparent; color: var(--pink);
+      border-radius: 50px; font-size: 13px; font-weight: 700;
+      font-family: Arial, sans-serif; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .share-btn-half:hover { background: var(--pink); color: white; }
+    .share-btn-half svg { width: 16px; height: 16px; }
 
     /* ── Reward ── */
-    .reward {
-      padding: 24px 24px 20px;
-      text-align: center;
-    }
-
+    .reward { padding: 22px 22px 18px; text-align: center; }
     .reward-icon {
-      width: 52px;
-      height: 52px;
-      background: var(--pink);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 14px;
+      width: 50px; height: 50px; background: var(--pink); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 12px;
       animation: pulse 2s 1s ease-in-out infinite;
     }
-
     @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(226,19,110,0.35); }
-      50% { box-shadow: 0 0 0 10px rgba(226,19,110,0); }
+      0%,100% { box-shadow: 0 0 0 0 rgba(226,19,110,0.35); }
+      50%      { box-shadow: 0 0 0 10px rgba(226,19,110,0); }
     }
+    .reward-icon svg  { width: 24px; height: 24px; fill: white; }
+    .reward-earned    { font-size: 13px; color: var(--text-muted); margin-bottom: 3px; }
+    .reward-title     { font-size: 19px; font-weight: 700; color: var(--text-dark); margin-bottom: 7px; }
+    .reward-desc      { font-size: 13px; color: var(--text-muted); }
+    .reward-link      { color: var(--pink); font-weight: 700; text-decoration: underline; cursor: pointer; }
 
-    .reward-icon svg { width: 26px; height: 26px; fill: white; }
-
-    .reward-earned {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-bottom: 4px;
+    /* ── Footer ── */
+    /* Payment footer: পরবর্তী */
+    .footer-next {
+      background: var(--pink); color: white; border: none;
+      width: 100%; padding: 19px 22px;
+      font-size: 17px; font-weight: 700; font-family: Arial, sans-serif;
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+      margin-top: 8px; transition: background 0.2s;
     }
+    .footer-next:hover { background: #c51060; }
+    .footer-next svg { width: 22px; height: 22px; }
 
-    .reward-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 8px;
+    /* Send money footer: হোম-এ ফিরে যাই */
+    .footer-home {
+      background: var(--pink); color: white; border: none;
+      width: 100%; padding: 19px 22px;
+      font-size: 17px; font-weight: 700; font-family: Arial, sans-serif;
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+      margin-top: 8px; transition: background 0.2s;
     }
+    .footer-home:hover { background: #c51060; }
+    .footer-home svg { width: 22px; height: 22px; }
 
-    .reward-desc {
-      font-size: 14px;
-      color: var(--text-muted);
-    }
-
-    .reward-link {
-      color: var(--pink);
-      font-weight: 600;
-      text-decoration: underline;
-      cursor: pointer;
-    }
-
-    /* ── Footer button ── */
-    .footer-btn {
-      background: var(--pink);
-      color: white;
-      border: none;
-      width: 100%;
-      padding: 20px 24px;
-      font-size: 18px;
-      font-weight: 700;
-      font-family: 'Hind Siliguri', sans-serif;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 8px;
-      transition: background 0.2s;
-    }
-
-    .footer-btn:hover { background: #c51060; }
-    .footer-btn svg { width: 24px; height: 24px; }
-
-    /* ── Copied toast ── */
+    /* Toast */
     .toast {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #222;
-      color: #fff;
-      padding: 10px 22px;
-      border-radius: 30px;
-      font-size: 14px;
-      font-family: 'Hind Siliguri', sans-serif;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s, transform 0.3s;
-      z-index: 999;
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: #222; color: #fff; padding: 10px 20px;
+      border-radius: 28px; font-size: 13px; font-family: Arial, sans-serif;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s; z-index: 999;
     }
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
 
-<div class="card">
-  <!-- Header -->
-  <div class="header">
-    <div class="header-title">আপনার <span>পেমেন্ট</span>&nbsp; সফল হয়েছে</div>
-    <div class="check-circle">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"/>
-      </svg>
-    </div>
-  </div>
-
-  <!-- Merchant -->
-  <div class="merchant">
-    <div class="merchant-icon">
-      <!-- shopping bag icon -->
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-        <line x1="3" y1="6" x2="21" y2="6" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"/>
-        <path d="M16 10a4 4 0 01-8 0" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="1.5"/>
-      </svg>
-    </div>
-    <div>
-      <div class="merchant-name">Streaming Hobe</div>
-      <div class="merchant-phone">01330744327</div>
-    </div>
-  </div>
-
-  <!-- Info Grid -->
-  <div class="info-grid">
-    <div class="info-cell">
-      <div class="cell-label">সময়</div>
-      <div class="cell-value">09:04pm 04/03/26</div>
+<!-- ══ SCREEN 1: INPUT FORM ══ -->
+<div class="screen active" id="screen-form">
+  <div class="form-card">
+    <div class="form-header">
+      <div class="form-logo">
+        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+      </div>
+      <div class="form-header-text">
+        <h2>bKash</h2>
+        <p>পেমেন্টের তথ্য পূরণ করুন</p>
+      </div>
     </div>
 
-    <div class="info-cell">
-      <div class="cell-label">ট্রানজেকশন আইডি</div>
-      <div class="txn-row">
-        <span class="cell-value" id="txnId">DC43OUAMF7</span>
-        <button class="copy-btn" onclick="copyTxn()" title="Copy">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+    <!-- Toggle bar -->
+    <div class="toggle-wrap">
+      <div class="toggle-bar">
+        <button class="toggle-btn active" id="tab-payment" onclick="switchTab('payment')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
           </svg>
+          Payment
+        </button>
+        <button class="toggle-btn" id="tab-sendmoney" onclick="switchTab('sendmoney')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+          Send Money
         </button>
       </div>
     </div>
 
-    <div class="info-cell">
-      <div class="cell-label">সর্বমোট</div>
-      <div class="cell-value">৳240.00</div>
-      <div class="cell-sub">+ চার্জ প্রযোজ্য নয়</div>
-    </div>
+    <div class="form-body">
+      <!-- Phone number -->
+      <div class="field">
+        <label>Mobile Number</label>
+        <div class="input-wrap">
+          <span class="phone-prefix">+880</span>
+          <input type="tel" id="input-phone" class="phone-input" placeholder="1XXXXXXXXX" maxlength="10" />
+        </div>
+        <div class="error-msg" id="err-phone">সঠিক নম্বর লিখুন — Enter a valid 10-digit number</div>
+      </div>
 
-    <div class="info-cell">
-      <div class="cell-label">নতুন ব্যালেন্স</div>
-      <div class="balance-row">
-        <span class="cell-value" id="balanceVal">**********</span>
-        <button class="eye-btn" onclick="toggleBalance()" title="Show balance">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="eyeIcon">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        </button>
+      <!-- Amount -->
+      <div class="field">
+        <label>পরিমাণ (Amount)</label>
+        <div class="input-wrap">
+          <span class="input-prefix">৳</span>
+          <input type="number" id="input-amount" placeholder="0.00" min="1" />
+        </div>
+        <div class="error-msg" id="err-amount">সঠিক পরিমাণ লিখুন — Enter a valid amount</div>
+      </div>
+
+      <!-- Reference -->
+      <div class="field">
+        <label>রেফারেন্স (Reference)</label>
+        <div class="input-wrap">
+          <input type="text" id="input-reference" class="no-prefix" placeholder="optional" />
+        </div>
+      </div>
+
+      <button class="pay-btn" onclick="proceedToSuccess()">
+        <svg id="pay-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+          <line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+        <span id="pay-btn-label">Pay Now</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 2a: PAYMENT SUCCESS ══ -->
+<div class="screen" id="screen-payment-success">
+  <div class="success-card">
+    <!-- Header -->
+    <div class="s-header">
+      <div class="s-title">আপনার <span>পেমেন্ট</span>&nbsp; সফল হয়েছে</div>
+      <div class="check-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
       </div>
     </div>
 
-    <div class="info-cell full">
-      <div class="cell-label">রেফারেন্স</div>
-      <div class="cell-value" style="color: var(--text-muted); font-weight:400; font-size:13px;">—</div>
+    <!-- Merchant: shopping bag icon + name + entered number -->
+    <div class="p-merchant-row">
+      <div class="p-merchant-icon">
+        <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" fill="none"/><path d="M16 10a4 4 0 01-8 0" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"/></svg>
+      </div>
+      <div>
+        <div class="p-merchant-name">Streaming Hobe</div>
+        <div class="p-merchant-phone" id="p-out-phone">—</div>
+      </div>
     </div>
-  </div>
 
-  <!-- Share -->
-  <div class="actions">
-    <button class="share-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/>
-        <polyline points="16 6 12 2 8 6"/>
-        <line x1="12" y1="2" x2="12" y2="15"/>
+    <!-- Info grid -->
+    <div class="info-grid">
+      <div class="info-cell">
+        <div class="cell-label">সময়</div>
+        <div class="cell-value" id="p-out-time">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="cell-label">ট্রানজেকশন আইডি</div>
+        <div class="txn-row">
+          <span class="cell-value" id="p-out-txn">—</span>
+          <button class="copy-btn" onclick="copyTxn('p-out-txn')" title="Copy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="info-cell">
+        <div class="cell-label">সর্বমোট</div>
+        <div class="cell-value" id="p-out-amount">৳0.00</div>
+        <div class="cell-sub">+ চার্জ প্রযোজ্য নয়</div>
+      </div>
+      <div class="info-cell">
+        <div class="cell-label">নতুন ব্যালেন্স</div>
+        <div class="balance-row">
+          <span class="cell-value" id="p-balanceVal">**********</span>
+          <button class="eye-btn" onclick="toggleBalance('p-balanceVal','p-eyeIcon')" title="Show">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="p-eyeIcon">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="info-cell full">
+        <div class="cell-label">রেফারেন্স</div>
+        <div class="cell-value" id="p-out-reference" style="color:var(--text-muted);font-weight:400;font-size:13px;">—</div>
+      </div>
+    </div>
+
+    <!-- Single share button -->
+    <div class="p-actions">
+      <button class="share-btn-full">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/>
+          <polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+        </svg>
+        শেয়ার
+      </button>
+    </div>
+
+    <!-- Reward -->
+    <div class="reward">
+      <div class="reward-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div class="reward-earned">আপনি অর্জন করেছেন</div>
+      <div class="reward-title">বিকাশ রিওয়ার্ড পয়েন্ট</div>
+      <div class="reward-desc">পয়েন্ট ব্যবহার করতে <span class="reward-link">বিকাশ রিওয়ার্ডস</span> চেক করুন!</div>
+    </div>
+
+    <!-- Footer: পরবর্তী -->
+    <button class="footer-next" onclick="goBack()">
+      পরবর্তী
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
       </svg>
-      শেয়ার
     </button>
   </div>
+</div>
 
-  <!-- Reward -->
-  <div class="reward">
-    <div class="reward-icon">
-      <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+<!-- ══ SCREEN 2b: SEND MONEY SUCCESS ══ -->
+<div class="screen" id="screen-sendmoney-success">
+  <div class="success-card">
+    <!-- Header -->
+    <div class="s-header">
+      <div class="s-title">আপনার <span>সেন্ড মানি</span>&nbsp; সফল হয়েছে</div>
+      <div class="check-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
     </div>
-    <div class="reward-earned">আপনি অর্জন করেছেন</div>
-    <div class="reward-title">বিকাশ রিওয়ার্ড পয়েন্ট</div>
-    <div class="reward-desc">পয়েন্ট ব্যবহার করতে <span class="reward-link">বিকাশ রিওয়ার্ডস</span> চেক করুন!</div>
-  </div>
 
-  <!-- Footer -->
-  <button class="footer-btn">
-    পরবর্তী
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="9 18 15 12 9 6"/>
-    </svg>
-  </button>
+    <!-- Recipient: letter avatar + number × 2 + call button -->
+    <div class="sm-recipient-row">
+      <div class="sm-avatar" id="sm-avatar">0</div>
+      <div class="sm-numbers">
+        <div class="sm-num1" id="sm-out-phone1">—</div>
+        <div class="sm-num2" id="sm-out-phone2">—</div>
+      </div>
+      <button class="call-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.28-.51a2 2 0 012.11.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+        </svg>
+        কল
+      </button>
+    </div>
+
+    <!-- Info grid -->
+    <div class="info-grid">
+      <div class="info-cell">
+        <div class="cell-label">সময়</div>
+        <div class="cell-value" id="sm-out-time">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="cell-label">ট্রানজেকশন আইডি</div>
+        <div class="txn-row">
+          <span class="cell-value" id="sm-out-txn">—</span>
+          <button class="copy-btn" onclick="copyTxn('sm-out-txn')" title="Copy">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="info-cell">
+        <div class="cell-label">সর্বমোট</div>
+        <div class="cell-value" id="sm-out-amount">৳0.00</div>
+        <div class="fee-sub" id="sm-out-fee">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="cell-label">নতুন ব্যালেন্স</div>
+        <div class="balance-row">
+          <span class="cell-value" id="sm-balanceVal">**********</span>
+          <button class="eye-btn" onclick="toggleBalance('sm-balanceVal','sm-eyeIcon')" title="Show">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="sm-eyeIcon">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="info-cell full">
+        <div class="cell-label">রেফারেন্স</div>
+        <div class="cell-value" id="sm-out-reference" style="color:var(--text-muted);font-weight:400;font-size:13px;">—</div>
+      </div>
+    </div>
+
+    <!-- Two buttons: অটো পে + শেয়ার -->
+    <div class="sm-actions">
+      <button class="autopay-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+        </svg>
+        অটো পে চালু করুন
+      </button>
+      <button class="share-btn-half">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/>
+          <polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
+        </svg>
+        শেয়ার
+      </button>
+    </div>
+
+    <!-- Reward -->
+    <div class="reward">
+      <div class="reward-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div class="reward-earned">আপনি অর্জন করেছেন</div>
+      <div class="reward-title">বিকাশ রিওয়ার্ড পয়েন্ট</div>
+      <div class="reward-desc">পয়েন্ট ব্যবহার করতে <span class="reward-link">বিকাশ রিওয়ার্ডস</span> চেক করুন!</div>
+    </div>
+
+    <!-- Footer: হোম-এ ফিরে যাই -->
+    <button class="footer-home" onclick="goBack()">
+      হোম-এ ফিরে যাই
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
 </div>
 
 <div class="toast" id="toast">ট্রানজেকশন আইডি কপি হয়েছে!</div>
 
 <script>
   const fakeBalance = "৳1,560.00";
-  let balanceVisible = false;
+  let currentTab = "payment";
+  const balanceState = { 'p-balanceVal': false, 'sm-balanceVal': false };
 
-  function toggleBalance() {
-    balanceVisible = !balanceVisible;
-    document.getElementById('balanceVal').textContent = balanceVisible ? fakeBalance : '**********';
-    const icon = document.getElementById('eyeIcon');
-    icon.innerHTML = balanceVisible
+  function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tab-payment').classList.toggle('active', tab === 'payment');
+    document.getElementById('tab-sendmoney').classList.toggle('active', tab === 'sendmoney');
+    document.getElementById('pay-btn-label').textContent = tab === 'payment' ? 'Pay Now' : 'Send Money';
+    const icon = document.getElementById('pay-icon');
+    icon.innerHTML = tab === 'sendmoney'
+      ? `<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>`
+      : `<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>`;
+  }
+
+  function generateTxnId() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    return Array.from({length:10}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+  }
+
+  function formatTime(d) {
+    let h = d.getHours(), m = d.getMinutes();
+    const ampm = h >= 12 ? 'pm' : 'am';
+    h = h % 12 || 12;
+    return `${h}:${String(m).padStart(2,'0')}${ampm} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;
+  }
+
+  function proceedToSuccess() {
+    const phoneEl  = document.getElementById('input-phone');
+    const amountEl = document.getElementById('input-amount');
+    const errPhone = document.getElementById('err-phone');
+    const errAmt   = document.getElementById('err-amount');
+    const phone    = phoneEl.value.trim();
+    const val      = parseFloat(amountEl.value);
+    let valid = true;
+
+    if (!phone || phone.length < 10 || !/^[0-9]+$/.test(phone)) {
+      errPhone.style.display = 'block'; phoneEl.style.borderColor = '#d32f2f';
+      if (valid) phoneEl.focus(); valid = false;
+    } else { errPhone.style.display = 'none'; phoneEl.style.borderColor = ''; }
+
+    if (!amountEl.value || isNaN(val) || val <= 0) {
+      errAmt.style.display = 'block'; amountEl.style.borderColor = '#d32f2f';
+      if (valid) amountEl.focus(); valid = false;
+    } else { errAmt.style.display = 'none'; amountEl.style.borderColor = ''; }
+
+    if (!valid) return;
+
+    const ref     = document.getElementById('input-reference').value.trim();
+    const fullNum = '0' + phone.replace(/^0+/,'');  // normalize to local format
+    const txnId   = generateTxnId();
+    const time    = formatTime(new Date());
+
+    if (currentTab === 'payment') {
+      document.getElementById('p-out-phone').textContent   = fullNum;
+      document.getElementById('p-out-time').textContent    = time;
+      document.getElementById('p-out-txn').textContent     = txnId;
+      document.getElementById('p-out-amount').textContent  = '৳' + val.toFixed(2);
+      setRef('p-out-reference', ref);
+      resetBalance('p-balanceVal','p-eyeIcon');
+      show('screen-payment-success');
+    } else {
+      // Send money
+      const firstDigit = fullNum.charAt(0) || '0';
+      document.getElementById('sm-avatar').textContent    = firstDigit;
+      document.getElementById('sm-out-phone1').textContent = fullNum;
+      document.getElementById('sm-out-phone2').textContent = fullNum;
+      document.getElementById('sm-out-time').textContent  = time;
+      document.getElementById('sm-out-txn').textContent   = txnId;
+      const fee = (val * 0.01).toFixed(2); // 1% fee example
+      document.getElementById('sm-out-amount').textContent = '৳' + (val + parseFloat(fee)).toFixed(2);
+      document.getElementById('sm-out-fee').textContent    = '৳' + val.toFixed(2) + ' + ৳' + fee;
+      setRef('sm-out-reference', ref);
+      resetBalance('sm-balanceVal','sm-eyeIcon');
+      show('screen-sendmoney-success');
+    }
+    window.scrollTo(0,0);
+  }
+
+  function show(id) {
+    document.getElementById('screen-form').classList.remove('active');
+    document.getElementById('screen-payment-success').classList.remove('active');
+    document.getElementById('screen-sendmoney-success').classList.remove('active');
+    document.getElementById(id).classList.add('active');
+  }
+
+  function goBack() {
+    show('screen-form');
+    document.getElementById('input-phone').value = '';
+    document.getElementById('input-amount').value = '';
+    document.getElementById('input-reference').value = '';
+    window.scrollTo(0,0);
+  }
+
+  function setRef(id, ref) {
+    const el = document.getElementById(id);
+    el.textContent = ref || '—';
+    el.style.color = ref ? 'var(--text-dark)' : 'var(--text-muted)';
+    el.style.fontWeight = ref ? '700' : '400';
+    el.style.fontSize   = ref ? '15px' : '13px';
+  }
+
+  function resetBalance(valId, iconId) {
+    balanceState[valId] = false;
+    document.getElementById(valId).textContent = '**********';
+    document.getElementById(iconId).innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+  }
+
+  function toggleBalance(valId, iconId) {
+    balanceState[valId] = !balanceState[valId];
+    document.getElementById(valId).textContent = balanceState[valId] ? fakeBalance : '**********';
+    document.getElementById(iconId).innerHTML = balanceState[valId]
       ? `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
          <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
          <line x1="1" y1="1" x2="23" y2="23"/>`
-      : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-         <circle cx="12" cy="12" r="3"/>`;
+      : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
   }
 
-  function copyTxn() {
-    navigator.clipboard.writeText('DC43OUAMF7').catch(() => {});
-    const toast = document.getElementById('toast');
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2200);
+  function copyTxn(id) {
+    navigator.clipboard.writeText(document.getElementById(id).textContent).catch(()=>{});
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
   }
+
+  document.getElementById('input-phone').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('input-amount').focus(); });
+  document.getElementById('input-amount').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('input-reference').focus(); });
+  document.getElementById('input-reference').addEventListener('keydown', e => { if(e.key==='Enter') proceedToSuccess(); });
 </script>
 </body>
 </html>
+
